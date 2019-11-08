@@ -2,21 +2,21 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="platformer_mariods" />
+		<Option title="osuc" />
 		<Option makefile_is_custom="1" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Windows">
 				<Option platforms="Windows;" />
-				<Option output="platformer" prefix_auto="1" extension_auto="1" />
+				<Option output="osuc" prefix_auto="1" extension_auto="1" />
 				<Option type="1" />
 				<Option compiler="gnu_gcc_compiler_but_64_bit" />
 				<Option use_console_runner="0" />
 			</Target>
 			<Target title="Linux">
 				<Option platforms="Unix;" />
-				<Option output="platformer" prefix_auto="1" extension_auto="1" />
+				<Option output="osuc" prefix_auto="1" extension_auto="1" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
