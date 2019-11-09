@@ -17,81 +17,8 @@ int main()
 
     printf("Hello world!\n");
 
-    char * file = load_file("song/seaShanty.osu");
-    //char * file = load_file("song/portal.osu");
 
-
-    bool atBeatmap = false;
-    bool nextLine = false;
-    char str[7] = {0};
-    int strLength = 0;
-    int skip = 0;
-    int howFarInLine = 0;
-    int tempPos = 0;
-    int tempTime = 0;
-    int tempLong = 0;
-    for(int i = 0; i < lengthFile; i++)
-    {
-
-        if(amountNotes > 400) break;
-        if(atBeatmap)
-        {
-
-
-            if(nextLine)
-            {
-                if(file[i] != '\n') continue;
-                else{   //if at end of line
-                    howFarInLine = 0;
-                    nextLine = false;
-
-                }
-            }
-            else if(howFarInLine > 6 && !nextLine)
-            {
-
-                notes[amountNotes].position = tempPos;
-                notes[amountNotes].timing = tempTime;
-                notes[amountNotes].longTime = tempLong;
-                printf("Note| position: %i, timing: %i, long: %i\n", notes[amountNotes].position, notes[amountNotes].timing, notes[amountNotes].longTime);
-
-                amountNotes++;
-                nextLine = true;
-            }
-            else if(file[i] == ',' || file[i] == ':') //process field / str
-            {
-                howFarInLine++;
-
-                if(skip > 0)
-                {
-                    skip--;
-                    continue;
-                }
-
-                strLength = 0;
-                if(howFarInLine == 1) tempPos = string_int(str);
-                if(howFarInLine == 3) tempTime = string_int(str);
-                if(howFarInLine == 6) tempLong = string_int(str);
-                for(int j = 0; j < 7; j++) str[j] = 0;
-
-                if(howFarInLine == 1) skip = 1;
-
-            }else if(skip > 0)
-            {
-                continue;
-            }else{
-                str[strLength] = file[i];
-                strLength++;
-            }
-            continue;
-        }
-
-        if(file[i-3] == 'c' && file[i-2] == 't' && file[i-1] == 's' && file[i] == ']')
-        {
-            atBeatmap = true;
-        }
-    }
-
+    load_map("song/seaShanty.osu");
 
 
 
@@ -178,7 +105,83 @@ void main_loop ()
 
 int last_jump = 0;
 
+void load_map (char * fileName)
+{
+    char * file = load_file(fileName);
+    //char * file = load_file("song/portal.osu");
 
+
+    bool atBeatmap = false;
+    bool nextLine = false;
+    char str[7] = {0};
+    int strLength = 0;
+    int skip = 0;
+    int howFarInLine = 0;
+    int tempPos = 0;
+    int tempTime = 0;
+    int tempLong = 0;
+    for(int i = 0; i < lengthFile; i++)
+    {
+
+        if(amountNotes > 400) break;
+        if(atBeatmap)
+        {
+
+
+            if(nextLine)
+            {
+                if(file[i] != '\n') continue;
+                else{   //if at end of line
+                    howFarInLine = 0;
+                    nextLine = false;
+
+                }
+            }
+            else if(howFarInLine > 6 && !nextLine)
+            {
+
+                notes[amountNotes].position = tempPos;
+                notes[amountNotes].timing = tempTime;
+                notes[amountNotes].longTime = tempLong;
+                printf("Note| position: %i, timing: %i, long: %i\n", notes[amountNotes].position, notes[amountNotes].timing, notes[amountNotes].longTime);
+
+                amountNotes++;
+                nextLine = true;
+            }
+            else if(file[i] == ',' || file[i] == ':') //process field / str
+            {
+                howFarInLine++;
+
+                if(skip > 0)
+                {
+                    skip--;
+                    continue;
+                }
+
+                strLength = 0;
+                if(howFarInLine == 1) tempPos = string_int(str);
+                if(howFarInLine == 3) tempTime = string_int(str);
+                if(howFarInLine == 6) tempLong = string_int(str);
+                for(int j = 0; j < 7; j++) str[j] = 0;
+
+                if(howFarInLine == 1) skip = 1;
+
+            }else if(skip > 0)
+            {
+                continue;
+            }else{
+                str[strLength] = file[i];
+                strLength++;
+            }
+            continue;
+        }
+
+        if(file[i-3] == 'c' && file[i-2] == 't' && file[i-1] == 's' && file[i] == ']')
+        {
+            atBeatmap = true;
+        }
+    }
+}
 
 char * load_file (char * file)
 {

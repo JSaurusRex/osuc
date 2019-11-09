@@ -1,10 +1,10 @@
 CC=gcc
-CFLAGS=-Wno-write-strings -ldl -lm -lpthread -pthread -lGL $(shell pkg-config --cflags glfw3)
+CFLAGS=-Wno-write-strings -ldl -lm -lpthread -pthread -lGL $(shell pkg-config --cflags glfw3) -lsndfile -lportaudio
 CLIBS= $(shell pkg-config --libs glfw3)
 
 
 WINCFLAGS=-Iinclude -Llib-mingw -L"C:\Program Files (x86)\CodeBlocks\MinGW\lib"
-WINCLIBS=-lglfw3 -lopengl32 -lgdi32
+WINCLIBS=-lglfw3 -lopengl32 -lgdi32 -lsndfile -lportaudio
 
 OUTPUT=osuc
 WINOUTPUT=$(OUTPUT).exe
