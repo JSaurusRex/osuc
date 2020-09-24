@@ -8,6 +8,7 @@ void main_loop();
 
 
 char * song = "seaShanty";
+Sound music;
 
 Note notes[400];
 int amountNotes = 0;
@@ -19,7 +20,8 @@ int main()
 
 
     load_map("song/seaShanty.osu");
-
+    music = LoadSound("song/audio.mp3");
+    
 
 
 
@@ -46,15 +48,18 @@ int string_int (char str [7])
 
 void main_loop ()
 {
-    float time = -5000;
+    float time = -500;
     int currentNote = 0;
     float errorTimeout = 0;
+    
+    PlaySound(music);
     while(frame_update())
     {
 
 
         //update camera
-        time += delta * 1000;
+        time = -50 + GetTime() * 1000;
+        printf("\nDebug: time:%f", time);
 
         if(errorTimeout > 0) errorTimeout -= delta * 8;
         if(errorTimeout < 0) errorTimeout = 0;
@@ -82,12 +87,17 @@ void main_loop ()
             vec tmp;
             tmp.x = (notes[i].position / 500.0) - 0.3;
             tmp.y = ((notes[i].timing - time) / 500.0) - 1;
+            
+            tmp.y *= -1;
 
             vec tmp2;
             tmp2.x = tmp.x + 0.25;
-            tmp2.y = ((notes[i].longTime - time) / 500.0) - 1;
-            if(notes[i].longTime == 0) tmp2.y = tmp.y + 0.1;
-            draw_rectangle(tmp, tmp2, vec4_create(1, 1, 1, 1));
+            //
+            tmp2.y *= -1;
+            if(notes[i].longTime == 0)tmp2.y = tmp.y - 0.1;
+            else tmp2.y = -1 * (((notes[i].longTime - time) / 500.0) - 1);
+            //printf("DrawRectangle! %f %f, %f %f", tmp.x, tmp.y, tmp2.x, tmp2.y);
+            draw_rectangle(tmp, tmp2, vec4_create(1, 0, 0, 1));
         }
 
         for(int i = 0; i < 4; i++)

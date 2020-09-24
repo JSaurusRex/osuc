@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include "raylib.h"
 
 #define MAX_TEXTURES 1000
 #define MAX_ANIMATIONS 100
@@ -42,6 +43,13 @@ vec vec_add (vec one, vec two)
     return one;
 }
 
+vec vec_addf (vec one, float two)
+{
+    one.x += two;
+    one.y += two;
+    return one;
+}
+
 vec vec_min (vec one, vec two)
 {
     one.x -= two.x;
@@ -66,6 +74,13 @@ vec vec_dev (vec one, vec two)
 {
     one.x /= two.x;
     one.y /= two.y;
+    return one;
+}
+
+vec vec_devf (vec one, float two)
+{
+    one.x /= two;
+    one.y /= two;
     return one;
 }
 
