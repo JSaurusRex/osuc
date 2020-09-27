@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include "raylib.h"
+#include <string.h>
+#include <raylib.h>
+#include <unistd.h>
+#include <math.h>
 
 #define MAX_TEXTURES 1000
 #define MAX_ANIMATIONS 100
@@ -9,6 +12,7 @@
 #define MAX_ENEMYS 20
 char * load_file (char * file);
 int lengthFile = 0;
+int amountKeys = 4;
 
 
 //put all the global structs in here
@@ -20,7 +24,7 @@ int game_state = 1;
 bool paused = false;
 
 //0 up, 1 down, 2 left, 3 right, 4 jump, 5 run, 6 pause
-bool keys[5];
+float keys[5];
 
 float delta;
 int millitotal, millitimer;
@@ -102,4 +106,5 @@ typedef struct //notes
 {
     int position, timing;
     int longTime;
+    int hit;
 }Note;
