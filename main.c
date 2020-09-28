@@ -11,9 +11,10 @@ char * song = "";
 char * path = "";
 Sound music;
 Sound hitSound;
-#define MAXNOTES 200
+//#define MAXNOTES 200
+int MAXNOTES = 200;
 
-Note notes[MAXNOTES];
+Note * notes;
 
 int amountNotes = 0;
 int audioLeadIn = 0;
@@ -71,25 +72,48 @@ void main_loop ()
     float errorTimeout = 0;
 	int playField = 270;
     
-    SetSoundVolume(music, 0.5f);
+    SetSoundVolume(music, 0.2f);
     PlaySound(music);
     float timeOffset = GetTime() * 1000 - audioLeadIn;
+    int missedNotes = 0;
     while(frame_update())
     {
+        
+        //update time
+        time = GetTime() * 1000 - timeOffset;
 		//nameOf song
 		draw_text(vec_create(-0.98f, -0.5f), 30, vec4_create(1,1,1,1),  song);
+        //timer
+        char num [15];
+        //char min [6];
+        sprintf(num, "%i:%i", ((int)time/1000) / 60, (int)(time/1000) % 60);
+        //sprintf(min, "%i", );
+        //strcat(min, num);
+        draw_text(vec_create(-0.98f, -0.3f), 50, vec4_create(1,1,1,1), num);
+        
+        sprintf(num, "missed: %i", missedNotes); 
+        draw_text(vec_create(-0.98f, 0), 50, vec4_create(1,1,1,1), num);
+        
+        sprintf(num, "currentNote: %i", currentNote); 
+        draw_text(vec_create(-0.98f, 0.3f), 40, vec4_create(1,1,1,1), num);
 
-        //update camera
-        time = GetTime() * 1000 - timeOffset;
+        
         //printf("\nDebug: time:%f", time);
 
         if(errorTimeout > 0) errorTimeout -= delta * 8;
         if(errorTimeout < 0) errorTimeout = 0;
-
+        
+        //bars
+        for(int i = 0; i < amountKeys; i++)
+        {
+            if(i %2 == 0)draw_rectangle(vec_create((i / (float)amountKeys), -1), vec_create(((i+1) / (float)amountKeys), 1), vec4_create(1,1,1,0.15f));
+        }
+        
+        
 
         //printf("jump_moment - millitotal = %i\n", millitotal - jump_moment);
 		bool allPreviousNotesHit = true;
-        for(int i = currentNote; notes[i].timing - time < playField * 2 || i - currentNote < 1; i++)
+        for(int i = currentNote; (notes[i].timing - time < playField * 2 || i - currentNote < 1) && i < amountNotes; i++)
         {
 			if(isHit(i) && allPreviousNotesHit) currentNote++;
 			else if(!isHit(i)) allPreviousNotesHit = false;
@@ -108,24 +132,25 @@ void main_loop ()
 					notes[i].hit = true;
 					keys[position] == time - 1000;
                     PlaySound(hitSound);
-                    printf("\nPlaying hitsound  CurrentNote %i\n", currentNote);
+                    //printf("\nPlaying hitsound  CurrentNote %i\n", currentNote);
 					continue;
 				}
             }
 			
-			if(notes[i].longTime != 0 && notes[i].timing - margin < time && notes[i].timing + notes[i].longTime + margin > time)
+			if(notes[i].longTime != 0 && notes[i].timing - margin < time && notes[i].longTime + margin > time)
 			{
 				
 				if(IsKeyDown(keyButtons[position])) {
-					printf("\n key[%i] hit %i", position, notes[i].hit);
+					printf("\n key[%i] hit %i    %i    %f", position, notes[i].hit, notes[i].hit-(notes[i].longTime-notes[i].timing), GetFrameTime()*10000);
 					notes[i].hit -= GetFrameTime() * 1000.0f;
 				}
 			}
 			//printf("\nKey D  %f", keys[position] - (time/1000.0f));
 
-            if((notes[i].longTime == 0 && notes[i].timing < time) || (notes[i].longTime != 0 && notes[i].longTime + notes[i].timing< time)) {
+            if((notes[i].longTime == 0 && notes[i].timing < time) || (notes[i].longTime != 0 && notes[i].longTime < time)) {
                 errorTimeout = 2;
                 notes[i].hit = 1;
+                missedNotes++;
 				if(notes[i].longTime != 0) notes[i].hit = -100;
                 continue;
             }
@@ -140,9 +165,9 @@ void main_loop ()
             vec tmp2;
             tmp2.x = tmp.x + 0.25;
             
-            tmp2.y *= -1;
+            
             if(notes[i].longTime == 0)tmp2.y = tmp.y - 50.0f/playField;
-            else tmp2.y = -1 * (((notes[i].longTime - time) / playField) - 1);
+            else tmp2.y = -1*((notes[i].longTime - time) / playField - 1);
             //printf("DrawRectangle! %f %f, %f %f", tmp.x, tmp.y, tmp2.x, tmp2.y);
             if(notes[i].longTime == 0)draw_rectangle(tmp, tmp2, vec4_create(1, 1, 0.2, 1));
 			else draw_rectangle(tmp, tmp2, vec4_create(0.5, 1, 0.2, 1));
@@ -178,6 +203,7 @@ void loadSoundPath(char * str, Sound * sound)
 void load_map (char * fileName)
 {
     char * file = load_file(fileName);
+    notes = malloc(sizeof(Note) * MAXNOTES);
 	
 	//figuring out path
 	if(true)
@@ -269,11 +295,17 @@ void load_map (char * fileName)
                 notes[amountNotes].position = tempPos;
                 notes[amountNotes].timing = tempTime;
                 notes[amountNotes].longTime = tempLong;
-				notes[amountNotes].hit = tempLong == 0 ? false : tempLong;
+				if(!tempLong) notes[amountNotes].hit = 0;
+                else notes[amountNotes].hit = tempLong-tempPos;
                 //printf("Note %i | position: %i, positionNumber %i, timing: %i, long: %i\n", amountNotes, oldPos, notes[amountNotes].position, notes[amountNotes].timing, notes[amountNotes].longTime);
 
                 amountNotes++;
-				if(MAXNOTES <= amountNotes) break;
+				if(MAXNOTES <= amountNotes+1) 
+                {
+                    MAXNOTES += 200;
+                    notes = realloc(notes, sizeof(Note) * MAXNOTES);
+                    
+                }
                 nextLine = true;
             }
             else if(file[i] == ',' || file[i] == ':') //process field / str
@@ -337,7 +369,7 @@ void load_map (char * fileName)
 				length++;
 				j++;
 			}
-			//length ++;
+			length++;
 			musicFile = malloc(length*sizeof(char));
 			j=0;
 			while(file[i] != '\n')
@@ -347,8 +379,10 @@ void load_map (char * fileName)
 				i++;
 				j++;
 			}
-			musicFile[j-1] = '\0';
-			char * tmpstr = calloc(length*strlen(path), sizeof(char));
+			//printf("\nCharacter %i", musicFile[j-1]);
+			if(musicFile[j-1] == 13) j--;
+			musicFile[j] = '\0';
+			char * tmpstr = calloc(length+strlen(path)+1, sizeof(char));
 			strcat(tmpstr, path);
 			strcat(tmpstr, musicFile);
 			printf("\nLoading Music File %s\n", musicFile);

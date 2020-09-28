@@ -10,7 +10,7 @@ bool initiate_render ()
 {
     InitWindow(screenx, screeny, "osuc");
     InitAudioDevice();
-    //SetTargetFPS(60);
+    SetTargetFPS(60);
     BeginDrawing();
 
 	return true;
